@@ -1,0 +1,26 @@
+{
+    "name": "com.takuho.tao.editor",
+    "rootNamespace": "TakuhoTech.TAO.Editor",
+    "references": [
+        "com.takuho.tao.runtime",
+        "nadena.dev.ndmf",
+        "nadena.dev.ndmf.runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "VRC.Dynamics.dll",
+        "VRC.SDK3.Dynamics.PhysBone.dll",
+        "VRC.SDK3.Dynamics.Constraint.dll",
+        "VRCSDK3A.dll",
+        "VRCSDKBase.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

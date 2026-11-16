@@ -1,0 +1,143 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "リリースするバージョン（例: 0.1.1、プレリリースは 0.2.0-beta.1）"
+        required: true
+        type: string
+      publish:
+        description: "オフ: zip を artifact に出力するだけ。オン: コミット・タグ・GitHub Release・VPM 一覧を公開する"
+        required: false
+        type: boolean
+        default: false
+
+env:
+  PKG_NAME: com.takuho.tao
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate inputs
+        env:
+          VERSION: ${{ inputs.version }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::version must be SemVer (e.g. 0.1.1 or 0.2.0-beta.1): $VERSION"
+            exit 1
+          fi
+          if ! grep -qF "## [$VERSION]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no section for $VERSION"
+            exit 1
+          fi
+          if [[ "$PUBLISH" == "true" ]]; then
+            if [[ "$GITHUB_REF_NAME" != "main" ]]; then
+              echo "::error::publish is only allowed on the main branch"
+              exit 1
+            fi
+            if [[ -n "$(git ls-remote --tags origin "refs/tags/v$VERSION")" ]]; then
+              echo "::error::tag v$VERSION already exists"
+              exit 1
+            fi
+          fi
+
+      - name: Set package version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          jq --arg version "$VERSION" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
+
+      - name: Build VPM package
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          mkdir -p build
+          zip -r "build/$PKG_NAME-$VERSION.zip" . -x 'build/*' '.*' 'Test~/*'
+
+      - name: Upload VPM package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PKG_NAME }}-${{ inputs.version }}
+          path: build/${{ env.PKG_NAME }}-${{ inputs.version }}.zip
+
+      - name: Extract release notes
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          awk -v version="$VERSION" '
+            index($0, "## [" version "]") == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/release-notes.md"
+          if [[ ! -s "$RUNNER_TEMP/release-notes.md" ]]; then
+            echo "::error::release notes for $VERSION are empty"
+            exit 1
+          fi
+
+      - name: Commit version bump and tag
+        if: ${{ inputs.publish }}
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet -- package.json; then
+            git commit -m "chore: bump version to $VERSION" -- package.json
+          fi
+          git tag "v$VERSION"
+          git push origin "HEAD:refs/heads/$GITHUB_REF_NAME" "refs/tags/v$VERSION"
+
+      - name: Create GitHub Release
+        if: ${{ inputs.publish }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          flags=()
+          if [[ "$VERSION" == *-* ]]; then
+            flags+=(--prerelease)
+          fi
+          gh release create "v$VERSION" "build/$PKG_NAME-$VERSION.zip" \
+            --title "v$VERSION" \
+            --notes-file "$RUNNER_TEMP/release-notes.md" \
+            "${flags[@]}"
+
+      - name: Update VPM listing
+        if: ${{ inputs.publish }}
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          # gh-pages does not exist until the first publish
+          if [[ -z "$(git ls-remote --heads origin gh-pages)" ]]; then
+            empty_tree=$(git mktree </dev/null)
+            root_commit=$(git commit-tree "$empty_tree" -m "chore: initialize gh-pages")
+            git push origin "$root_commit:refs/heads/gh-pages"
+          fi
+          git fetch origin gh-pages
+          git worktree add --detach "$RUNNER_TEMP/gh-pages" origin/gh-pages
+          cd "$RUNNER_TEMP/gh-pages"
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          python3 "$GITHUB_WORKSPACE/.github/scripts/update_vpm.py" \
+            --listing vpm.json \
+            --package "$GITHUB_WORKSPACE/package.json" \
+            --zip "$GITHUB_WORKSPACE/build/$PKG_NAME-$VERSION.zip" \
+            --zip-url "https://github.com/$GITHUB_REPOSITORY/releases/download/v$VERSION/$PKG_NAME-$VERSION.zip" \
+            --listing-url "https://$owner.github.io/${GITHUB_REPOSITORY#*/}/vpm.json"
+          git add vpm.json
+          git commit -m "chore: add $VERSION to VPM listing"
+          git push origin "HEAD:refs/heads/gh-pages"

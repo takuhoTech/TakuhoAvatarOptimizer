@@ -1,0 +1,19 @@
+{
+    "name": "com.takuho.tao.runtime",
+    "rootNamespace": "TakuhoTech.TAO",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "VRC.Dynamics.dll",
+        "VRC.SDK3.Dynamics.PhysBone.dll",
+        "VRCSDK3A.dll",
+        "VRCSDKBase.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
