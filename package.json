@@ -1,7 +1,7 @@
 {
   "name": "com.takuho.tao",
   "displayName": "TAO: Takuho's Avatar Optimizer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "unity": "2022.3",
   "license": "MIT",
   "description": "VRChatアバター向けの非破壊最適化ツール集。TAO Merge PhysBone By Constraint / TAO Reorder GameObject を含みます。",

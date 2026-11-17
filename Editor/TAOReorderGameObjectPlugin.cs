@@ -1,3 +1,4 @@
+using System.Linq;
 using nadena.dev.ndmf;
 using TakuhoTech.TAO;
 using TakuhoTech.TAO.Editor;
@@ -16,20 +17,43 @@ namespace TakuhoTech.TAO.Editor
         {
             InPhase(BuildPhase.FirstChance)
                 .BeforePlugin("nadena.dev.modular-avatar")
-                .Run("Move Objects To Last Sibling", ctx =>
+                .Run("Reorder Siblings By Order", ctx =>
                 {
                     var components = ctx.AvatarRootObject
                         .GetComponentsInChildren<TAOReorderGameObject>(true);
 
-                    foreach (var component in components)
-                    {
-                        var target = component.transform;
-                        if (target.parent != null)
-                            target.SetAsLastSibling();
+                    // アバターのルートには並べ替える兄弟がいないので、対象にしない
+                    var parents = components
+                        .Select(c => c.transform)
+                        .Where(t => t != ctx.AvatarRootTransform)
+                        .Select(t => t.parent)
+                        .Distinct()
+                        .ToList();
 
-                        Object.DestroyImmediate(component);
-                    }
+                    foreach (var parent in parents) SortChildren(parent);
+
+                    foreach (var component in components) Object.DestroyImmediate(component);
                 });
+        }
+
+        /// <summary>
+        /// 子全体を Order の昇順に並べ替える。OrderBy は安定ソートなので、Order が同じ子は元の並び順のままになる。
+        /// </summary>
+        static void SortChildren(Transform parent)
+        {
+            var sorted = Enumerable.Range(0, parent.childCount)
+                .Select(i => parent.GetChild(i))
+                .OrderBy(OrderOf)
+                .ToList();
+
+            for (var i = 0; i < sorted.Count; i++) sorted[i].SetSiblingIndex(i);
+        }
+
+        /// <summary>コンポーネントが付いていない GameObject は、DefaultOrder として扱う。</summary>
+        static int OrderOf(Transform child)
+        {
+            var component = child.GetComponent<TAOReorderGameObject>();
+            return component != null ? component.order : TAOReorderGameObject.DefaultOrder;
         }
     }
 }
