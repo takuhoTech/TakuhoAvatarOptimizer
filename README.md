@@ -1,18 +1,26 @@
 # TAO: Takuho's Avatar Optimizer
 
-VRChat アバター向けの非破壊最適化コンポーネント集です。NDMF のビルド時に処理されるため、編集中のシーンは変更されません。
+VRChat アバター向けの非破壊最適化コンポーネント集です。処理はすべて NDMF のビルド時に行われるため、編集中のシーンやアセットは変更されません。
+
+## コンポーネント
+
+| コンポーネント | 内容 | 詳細 |
+|---|---|---|
+| TAO Merge PhysBone By Constraint | 髪の毛一本ごとに設定された多数の PhysBone を、VRC Rotation Constraint を使って 1 つの PhysBone にまとめて軽量化します。 | [docs/merge-physbone-by-constraint.md](docs/merge-physbone-by-constraint.md) |
+| TAO Optimize VRC Shader Fallback | VRChat の Safety でカスタムシェーダーが無効化されたときの見た目が、元の見た目に近くなるように、マテリアルごとに VRCFallback を設定します。 | [docs/shader-fallback/README.md](docs/shader-fallback/README.md) |
+| TAO Reorder GameObject | 同じ親を持つ子 GameObject 全体を、Order（並び順）の昇順に並べ替えます。 | [docs/reorder-gameobject.md](docs/reorder-gameobject.md) |
 
 ## 必要環境
 
 - Unity 2022.3
-- VRChat Avatars SDK (`com.vrchat.avatars`)
-- NDMF (`nadena.dev.ndmf`)
+- VRChat Avatars SDK（`com.vrchat.avatars` 3.10.0 以降）
+- NDMF（`nadena.dev.ndmf` 1.8.0 以降）
 
 ## インストール
 
 VRChat Creator Companion（VCC）2.1.0 以降で、次のリポジトリを追加してからパッケージを追加します。
 
-1. VCC の Settings を開き、**Packages** タブの **Add Repository** を押します。
+1. VCC の **Settings** を開き、**Packages** タブの **Add Repository** を押します。
 2. 次の URL を入力して **Add** を押し、表示された内容を確認して **I Understand, Add Repository** を押します。
 
    ```
@@ -21,117 +29,14 @@ VRChat Creator Companion（VCC）2.1.0 以降で、次のリポジトリを追�
 
 3. プロジェクトのパッケージ一覧で **TAO: Takuho's Avatar Optimizer** を追加します。
 
-## コンポーネント
+## ビルド時の順序
 
-メニュー `TAO` または Add Component から追加できます。
-
-### TAO Merge PhysBone By Constraint
-
-髪の毛一本ごとに設定された多数の PhysBone を、VRC Rotation Constraint を使って 1 つの PhysBone にまとめて軽量化します。まとめられたボーン（追従）は、既存の本体 PhysBone、またはビルド時に生成する PhysBone に追従して揺れます。
-
-#### 使い方
-
-1. アバター内の任意の GameObject にコンポーネントを追加します。
-2. **対象のPhysBone** に、本体として残す PhysBone と、追従させたい PhysBone を追加します。
-   - 見出しにドラッグ＆ドロップで追加できます（複数可）。
-   - GameObject をドロップすると、その GameObject 自身に付いている PhysBone がすべて追加されます。
-   - 「追加する要素」欄にも設定できます。`+` / `-` ボタンで要素を挿入・削除できます。
-   - 同じ PhysBone を重ねて追加しようとしても、無視されます。
-3. **本体** を、各行の左側にあるオプションボタン（ラジオボタン）で選びます。選んだ行のラベルは「本体」と青で表示され、他の行は「追従」になります。本体が未選択のときは、警告が表示されます。
-   - **対象のPhysBoneのどれか**: その PhysBone を本体にします。本体に選んだ PhysBone は残り、他の PhysBone（追従）がそれに追従します。
-   - **新しいPhysBoneを生成して本体にする**: トグルの中、一覧の下の行のオプションボタンで選びます。追従 PhysBone の平均的な位置に PhysBone を新しく生成し、それを本体にします。生成先の親とボーン数は、下部の PhysBone の設定の Transform セクションに表示されます。
-   - 本体と階層やボーン数が異なる行には、アイコンが表示されます。理由はアイコンにカーソルを置くと確認できます。
-4. 必要に応じて **追従の強さ** を設定します。値を下げると、追従 PhysBone の揺れが小さくなります。
-5. **パフォーマンス統計** で、変換による増減を確認できます。項目は VRChat のパフォーマンス統計の名称です。
-   - PhysBone Components、PhysBone Transforms、PhysBone Collision Check Count、Constraint Count、Constraint Depth を表示します。
-   - いずれも目安の値です。Constraint Depth は、根元から末端まで、Constraint が付くボーンの連なりの最大です。PhysBone Collision Check Count は、PhysBone Transforms × 参照するコライダーの数で計算します。
-6. 最下部の PhysBone の設定（AAO Merge PhysBone と同じ項目構成）で、**設定の取得元** を選び、必要な項目だけ「手動」にします。Version はセクションの外、その他の項目は Transform などのセクションに並びます。
-
-#### 生成PhysBoneの設定
-
-- **生成位置**: 追従するすべての PhysBone について、ルートから先端までの経路上の同じ割合（長さの正規化）の位置を平均したボーン列を生成します。
-- **生成先の親**: 右端のポップアップで「自動」「手動」を選びます。自動の場合は、追従 PhysBone ルートの親の共通祖先に生成します。階層が異なる場合の揺れ方は、この親が目安になります。
-- **生成PhysBoneのボーン数（先端を含む）**: 先端のボーンを含む数です。右端のポップアップで「自動」「手動」を選びます。自動の場合は、追従 PhysBone のボーン数の平均（四捨五入）になります。
-- 本体に既存の PhysBone を選んでいるときは、Transform セクションに **本体のボーン数（先端を含む）** が表示されます（読み取り専用）。
-- ボーン数が異なる行のアイコンのツールチップには、「追従 3 → 生成 2」「追従 3 → 本体 2」のように、追従側と本体（生成）側の数を並べて表示します。
-
-#### PhysBone の設定（設定の取得元と自動 / 手動）
-
-AAO Merge PhysBone と同じ項目構成です。
-
-**設定の取得元**（既存の PhysBone を本体にする場合のみ、2択のボタンで選べます。生成する場合は「自動生成」に固定です）
-
-| 取得元 | 内容 |
-|---|---|
-| 本体の設定を維持 | 本体 PhysBone の設定をそのまま使います。初期値です。 |
-| 自動生成 | 追従 PhysBone と本体 PhysBone 自身の設定をまとめます（数値・カーブは平均、Version・Limit Type などは最も多い値、Colliders は和集合）。生成する場合は、追従 PhysBone の設定をまとめます。ボーン数が異なる PhysBone の設定は、下記の補正をしてからまとめます。 |
-
-**ボーン数による補正**（自動生成のとき）
-
-ボーン数が減ると、関節の数が減るので、同じパラメータでは全体の曲がり（ルートと末端の相対的な角度）が小さくなります。まとめる前に、各 PhysBone の設定を、本体（生成PhysBone）の回転するボーン数 ÷ そのPhysBoneの回転するボーン数 の比 `r` で補正します。
-
-- **Pull・Stiffness**: `r` 倍にします（上限 1）。ボーンが少ないほど弱くなり、関節ごとに大きく曲がります。
-- **Max Angle X / Z**: `1/r` 倍にします（X は上限 180、Z は上限 90）。関節ごとの角度制限を広げます。
-- その他の項目は補正しません。
-
-この補正は目安の係数で、揺れが物足りない・大きすぎる場合は「手動」で調整してください。
-
-**項目ごとの 自動 / 手動**
-
-- **自動**: 設定の取得元の値を使います。値は読み取り専用で表示されます。
-- **手動**: ビルド時にその値を設定します。切り替えた時点の値から編集を始めます。
-- 既存の PhysBone を本体にする場合でも、取得元が「自動生成」のときは、ビルド時にその PhysBone へ値を書き込みます。元のコンポーネントは変更されません。変更はビルド後のアバターにだけ反映されます。
-
-#### ビルド時の動作
-
-- リスト内の追従 PhysBone を削除し、そのボーンに VRC Rotation Constraint を追加します。
-- Constraint は、ルートと「子を持つボーン」に付けます。末端ボーンは PhysBone でも回転せず、AAO に削除されるため付けません。
-- ボーン数が同じ場合は、追従側のルートからの深さ n のボーンが、本体の n 番目のボーンに追従します。
-- 現在の姿勢が変わらないように、オフセットと `RotationAtRest` を自動計算します。
-- 実行は Modular Avatar の後、AAO の最適化の前です。
-- 本体が未選択、本体が追従側の配下にあるなど、処理できない場合は、NDMF のエラーレポートに警告（ビルドは止まりません）が表示されます。クリックで該当のオブジェクトを選択できます。
-
-#### ボーン数が異なる場合
-
-追従側と本体で回転するボーンの数が違っても、ルートと末端の相対的な角度が一致するようにします。
-
-- 追従側の最初の回転ボーンを本体の最初の回転ボーンに、最後の回転ボーンを本体の最後の回転ボーンに対応させます。
-- 間のボーンは、`k × (本体の本数 − 1) ÷ (追従側の本数 − 1)` 番目の位置に対応させ、整数にならない場合は隣り合う2つの本体ボーンを重みで配分して追従します（Constraint のソースを2つ設定します）。
-- 追従側のボーンが1本だけの場合は、本体の最後のボーンに対応させます。
-- 対応づけは本体の各ボーンの回転を元にするので、ボーン数にも、ルートの親の向きにも依存しません。ただし各ボーンの回転を直接追従させるため、ボーン数が異なる場合はワールド空間で追従します。
-
-#### 階層が異なる場合
-
-本体と追従側の PhysBone ルートの親が異なる場合は、インスペクターに注意が表示され、ワールド空間で追従します。
-
-- 初期ポーズを保ったまま、本体の回転の変化量が追従側にそのまま乗ります。親の向きが違っても同じ向きに揺れます。
-- 追従側の親が、本体の親とは別に独自に動く場合、その動きは回転に反映されません。
-
-#### 制限
-
-- ボーン数は、回転するボーンの経路で数えます。分岐があるときは、Multi-Child Type が Ignore なら、分岐のボーンは回転しないので Constraint を付けず、最も長い枝を元にします。Ignore 以外（First / Average）のときは、最初の子をたどります。
-- 追従する PhysBone 固有の設定（Pull、Stiffness、コライダーなど）は失われ、揺れは本体と同じになります。
-- 追従側の `Ignore Transforms` のボーンには Constraint を付けず、そのまま残します。
-- 本体が追従側のルートの配下にある場合は、循環するためスキップして警告を出します。
-
-### TAO Reorder GameObject
-
-同じ親を持つ子 GameObject 全体を、ビルド時に **Order**（並び順）の昇順に並べ替えます。数字が小さいほど上、大きいほど下に配置されます。
-
-#### 使い方
-
-1. 並べ替えたい GameObject にコンポーネントを追加します。
-2. **Order**（整数、初期値 50）を設定します。負の値も設定できます。
-   - 他の兄弟より上に置きたいときは小さな値（例: 0）、下に置きたいときは大きな値（例: 100）を設定します。
-
-#### ビルド時の動作
-
-- コンポーネントを付けた GameObject の親ごとに、その親の子すべてを Order の昇順に並べ替えます。
-- コンポーネントが付いていない GameObject は、Order = 50 として扱います。
-- Order が同じ場合は、元の並び順を維持します。
-- 例: 親の下に A（コンポーネントなし）、B（Order = 0）、C（Order = 100）、D（コンポーネントなし）の順で子が並んでいるとき、ビルド後は B、A、D、C の順になります。
-- 実行は Modular Avatar より前の FirstChance フェーズです。処理後、コンポーネントは削除されます。
-- アバターのルートに付けたコンポーネントは、並べ替える兄弟がないため、何もしません。
+| フェーズ | コンポーネント | 処理 |
+|---|---|---|
+| FirstChance（Modular Avatar より前） | TAO Reorder GameObject | 子 GameObject を並べ替えます。処理後、コンポーネントは削除されます。 |
+| Transforming（Modular Avatar の後、AAO より前） | TAO Merge PhysBone By Constraint | PhysBone をまとめます。 |
+| Resolving | TAO Optimize VRC Shader Fallback | 設定を読み取り、コンポーネントを削除します。AAO に検出されないようにするためです。 |
+| Optimizing（AAO の後） | TAO Optimize VRC Shader Fallback | マテリアルを複製し、フォールバックの設定を書き込みます。 |
 
 ## ライセンス
 
@@ -139,4 +44,9 @@ MIT License（[LICENSE](LICENSE)）
 
 ## 言語
 
-インスペクター上部の Editor Language で、日本語と英語を切り替えられます。
+インスペクター上部の **Editor Language** で、日本語と英語を切り替えられます。
+
+## その他
+
+- 変更履歴: [CHANGELOG.md](CHANGELOG.md)
+- 開発・リリース手順: [CONTRIBUTING.md](CONTRIBUTING.md)

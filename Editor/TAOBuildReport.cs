@@ -18,6 +18,8 @@ namespace TakuhoTech.TAO.Editor
         public const string GeneratedInsideFollower = Prefix + "generated-inside-follower";
         public const string NoRotatingBoneToGenerate = Prefix + "no-rotating-bone-to-generate";
 
+        public const string MultipleShaderFallbacks = "tao.shader-fallback.multiple-components";
+
         static readonly Dictionary<string, string> Japanese = new Dictionary<string, string>();
         static readonly Dictionary<string, string> English = new Dictionary<string, string>();
 
@@ -64,6 +66,11 @@ namespace TakuhoTech.TAO.Editor
                 null,
                 "Could not generate a PhysBone because no follower PhysBone has a rotating bone",
                 null);
+            Add(MultipleShaderFallbacks,
+                "TAO Optimize VRC Shader Fallback が複数あります",
+                "{0} の設定だけを使います。",
+                "There are multiple TAO Optimize VRC Shader Fallback components",
+                "Only the settings of {0} are used.");
         }
 
         /// <summary>ビルドは止めずに、NDMF のレポートへ表示する。args の Unity オブジェクトは、レポートから選択できる。</summary>

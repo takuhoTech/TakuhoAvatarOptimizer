@@ -58,5 +58,26 @@ namespace TakuhoTech.TAO.Editor
 
         /// <summary>戻り値は、選択後に「自動」かどうか。</summary>
         public static bool AutoPopup(Rect rect, bool isAuto) => AutoManualPopup(rect, !isAuto) == 0;
+
+        /// <summary>
+        /// 選択肢の多いポップアップ。自動で決まった項目と、手動で指定した項目を見分けやすいように、
+        /// 「自動 / 手動」のポップアップと同じ色で表示する。
+        /// </summary>
+        public static int ColoredPopup(Rect rect, int selected, string[] options, bool manual)
+        {
+            var indent = EditorGUI.indentLevel;
+            var contentColor = GUI.contentColor;
+            var backgroundColor = GUI.backgroundColor;
+            EditorGUI.indentLevel = 0;
+            GUI.contentColor = manual ? ManualContentColor : AutoContentColor;
+            GUI.backgroundColor = manual ? ManualBackgroundColor : AutoBackgroundColor;
+
+            selected = EditorGUI.Popup(rect, selected, options);
+
+            GUI.contentColor = contentColor;
+            GUI.backgroundColor = backgroundColor;
+            EditorGUI.indentLevel = indent;
+            return selected;
+        }
     }
 }
