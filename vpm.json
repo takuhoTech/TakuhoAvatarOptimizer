@@ -12,7 +12,7 @@
           "version": "0.1.0",
           "unity": "2022.3",
           "license": "MIT",
-          "description": "VRChatアバター向けの非破壊最適化ツール集。TAO Merge PhysBone By Constraint / TAO Reorder GameObject を含みます。",
+          "description": "VRChatアバター向けの非破壊最適化ツール集。TAO Merge PhysBone By Constraint / TAO Optimize VRC Shader Fallback / TAO Reorder GameObject を含みます。",
           "author": {
             "name": "Takuho"
           },
@@ -22,9 +22,9 @@
           "changelogUrl": "https://github.com/takuhoTech/TakuhoAvatarOptimizer/blob/main/CHANGELOG.md",
           "vpmDependencies": {
             "com.vrchat.avatars": ">=3.10.0",
-            "nadena.dev.ndmf": ">=1.5.0"
+            "nadena.dev.ndmf": ">=1.8.0"
           },
-          "zipSHA256": "2eddca841e47b07a54e3bc282dfdbdd99d433c9b48a4df0300dd06b398c8bdea"
+          "zipSHA256": "83ad0aa4fd8b1390cd685677b3d8c39b94c250ebb80403e03ab91971349c6e4e"
         }
       }
     }
