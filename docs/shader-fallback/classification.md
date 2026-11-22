@@ -169,4 +169,4 @@ Standard 系は、Unity の Standard シェーダーへのフォールバック�
 - **自動では、lilToon のマテリアルに選びません。** Standard は光の当たり方が lilToon や Toon Standard と違い、ほかの部分と明るさが合わないことがあるためです。
 - lilToon のマテリアルに指定した場合は、つやのない見た目になるように、光沢の値（`_Glossiness` など）を設定します。
 - 合成の設定（Src Blend）が One のマテリアルは、乗算済みアルファで合成するため Standard Transparent が近くなります。Src Alpha のマテリアルは Standard Fade が近くなります。指定したフォールバック先と合成の設定が合わないときは、補足で案内します。
-- Standard 系の見た目は、VRChat が引き継ぐ値に依存します。実機での確認はしていません（[動作確認の状況](values-and-limits.md#動作確認の状況)）。
+- Standard 系の見た目は、VRChat が引き継ぐ値に依存します（[動作確認の状況](values-and-limits.md#動作確認の状況)）。

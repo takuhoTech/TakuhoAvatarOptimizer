@@ -17,7 +17,6 @@
 
 ### 制限事項
 
-- Particle・Toon・Unlit・Unlit Transparent・Standard 系の見え方は、実機で確認していません
 - MatCap、金属の反射、リムライト、FakeShadow、各種マスク、頂点の変形などは再現しません
 - 焼き込みは、Windows 向けのビルドだけで行います
 - フォールバックのプレビュー（Preview Fallback）は、VRChat の表示を近似したものです

@@ -61,7 +61,7 @@
 | 通常の表示が変わらない（焼き込みを含む） | Unity 上で、作者の環境の実アバター 3 体をビルドして比較 |
 | 元のマテリアルとテクスチャのアセットが変わらない | Unity 上で、ビルド前後のファイルを比較 |
 | フォールバックのプレビュー（Preview Fallback）の表示 | Unity 上で確認（VRChat の表示と完全に同じとは限りません） |
-| Particle・Toon・Unlit・Unlit Transparent・Standard 系の見え方 | 未確認 |
+| Particle・Toon・Unlit・Unlit Transparent・Standard 系の見え方 | 確認済み |
 
 ## 制限
 
@@ -73,5 +73,5 @@
 - lilToon Lite は、Shadow Ramp（`_Ramp`）を持たないため影を設定せず、焼き込みの対象外です。lilToon 以外のシェーダーにも、影は設定しません。
 - lilToon 以外のシェーダーは、アルファマスクを読み取りません。アルファマスクで透かしているマテリアルは、透け方が実際と違うことがあります。
 - 焼き込みは、Windows 向けのビルドだけで行います。
-- Standard 系の見た目は、VRChat が引き継ぐ値に依存します。実機での確認はしていません。
+- Standard 系の見た目は、VRChat が引き継ぐ値に依存します。
 - フォールバックのプレビュー（Preview Fallback）は近似表示です。Standard のプレビューでは、発光とノーマルマップを表示しません。
