@@ -1,5 +1,7 @@
 # TAO: Takuho's Avatar Optimizer
 
+![lilToon・TAOなし・TAOありの見た目の比較](docs/images/shader-fallback-comparison.png)
+
 VRChat アバター向けの非破壊最適化コンポーネント集です。処理はすべて NDMF のビルド時に行われるため、編集中のシーンやアセットは変更されません。
 
 [![Add to VCC](https://img.shields.io/badge/-Add%20to%20VCC-%232baac1?style=for-the-badge)](https://takuhotech.github.io/TakuhoAvatarOptimizer/vpm.html)
