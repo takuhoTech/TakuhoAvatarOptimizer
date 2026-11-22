@@ -2,6 +2,8 @@
 
 VRChat アバター向けの非破壊最適化コンポーネント集です。処理はすべて NDMF のビルド時に行われるため、編集中のシーンやアセットは変更されません。
 
+[![Add to VCC](https://img.shields.io/badge/-Add%20to%20VCC-%232baac1?style=for-the-badge)](https://takuhotech.github.io/TakuhoAvatarOptimizer/vpm.html)
+
 ## コンポーネント
 
 | コンポーネント | 内容 | 詳細 |
@@ -18,7 +20,7 @@ VRChat アバター向けの非破壊最適化コンポーネント集です。�
 
 ## インストール
 
-VRChat Creator Companion（VCC）2.1.0 以降で、次のリポジトリを追加してからパッケージを追加します。
+VRChat Creator Companion（VCC）2.1.0 以降で、上の **Add to VCC** ボタンを押すか、次の手順でリポジトリを追加してからパッケージを追加します。
 
 1. VCC の **Settings** を開き、**Packages** タブの **Add Repository** を押します。
 2. 次の URL を入力して **Add** を押し、表示された内容を確認して **I Understand, Add Repository** を押します。
@@ -48,5 +50,6 @@ MIT License（[LICENSE](LICENSE)）
 
 ## その他
 
+- 本パッケージは Claude を使って実装しました。
 - 変更履歴: [CHANGELOG.md](CHANGELOG.md)
 - 開発・リリース手順: [CONTRIBUTING.md](CONTRIBUTING.md)
